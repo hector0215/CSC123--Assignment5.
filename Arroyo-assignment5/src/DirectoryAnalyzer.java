@@ -1,3 +1,4 @@
+//Hector Arroyo harroyoruiz1@toromail.csudh.edu
 import java.io.*;
 
 public class DirectoryAnalyzer {

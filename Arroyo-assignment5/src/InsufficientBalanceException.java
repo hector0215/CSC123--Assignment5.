@@ -1,4 +1,4 @@
-
+//Hector Arroyo harroyoruiz1@toromail.csudh.edu
 public class InsufficientBalanceException extends Exception{
 	
     private double balance;
