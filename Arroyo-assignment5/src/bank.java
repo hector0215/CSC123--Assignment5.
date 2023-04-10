@@ -284,12 +284,11 @@ public class bank {
 	}
     public void saveData() {
         try {
-            FileOutputStream fileOut = new FileOutputStream("bank_data.ser");
+            FileOutputStream fileOut = new FileOutputStream("bank_data.txt");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(this); // write the entire Bank object to the file
+            out.writeObject(this);
             out.close();
             fileOut.close();
-            System.out.println("Bank data saved to bank_data.ser");
         } catch (IOException e) {
             e.printStackTrace();
         }
