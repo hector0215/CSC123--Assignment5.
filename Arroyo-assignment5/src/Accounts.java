@@ -14,15 +14,18 @@ public abstract class Accounts {
 	protected double balance;
 	protected boolean withdrawSuccess = true;
 	protected String status;
+	protected String currency;
+	protected double usersSelectedCurrency;
     private ArrayList<Transactions> transactions;
     
 
-	public Accounts(String accountType, Person customer) {
+	public Accounts(String accountType, Person customer, String currency) {
 		unissuedAccountNumbers++;
 		accountNumber = unissuedAccountNumbers;
 		this.accountType = accountType;
 		accountOpen=true;
 		this.customer = customer;
+		this.currency = currency;
 	    this.transactions = new ArrayList<Transactions>();
 	}
 	
@@ -33,6 +36,7 @@ public abstract class Accounts {
 	    transactions.add(transaction);
 		return balance;
 	}
+	
 	public double withdraw(double withdrawAmount) throws InsufficientBalanceException{
 	    if (this instanceof checkingAccount) {
 	        if (balance - withdrawAmount + ((checkingAccount) this).overDraftLimit >= 0) {
@@ -55,7 +59,6 @@ public abstract class Accounts {
 	    transactions.add(transaction);
 	    return balance;
 	}
-
 	
 	public boolean withdrawSucces() {
 		return withdrawSuccess;
@@ -69,9 +72,15 @@ public abstract class Accounts {
 		this.accountOpen=false;
 	}
 	
-	public double getBalance() {
-		return balance;
+	public double getUSDBalance() {
+		return balance * bank.currencyConversion.get(currency);
 	}
+	
+	public double getUserCurrencyBalance() {
+		usersSelectedCurrency = balance; 
+		return usersSelectedCurrency;
+	}
+
 	public ArrayList<Transactions> getTransactions() {
 		return transactions;
 	}
@@ -79,6 +88,6 @@ public abstract class Accounts {
 	@Override
 	public String toString() {
 		status = isOpen() ? "Account Open" : "Account Closed";
-		return accountNumber + " (" + this.accountType + ") " + ": " + customer + " : $" + getBalance() + " : " + status;
+		return accountNumber + " (" + this.accountType + ") " + ": " + customer + " : " + currency + " : " + getUserCurrencyBalance() + " : " + "USD" + " : $" + getUSDBalance() + " : " + status;
 	}
 }

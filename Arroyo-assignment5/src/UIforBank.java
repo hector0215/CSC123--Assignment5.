@@ -5,26 +5,29 @@ import java.util.Scanner;
 public class UIforBank {
 	private static Scanner scnr = new Scanner(System.in);
 	private String type;
-	public static void menu() {
-		System.out.println("1 - Open a Checking account");
-		System.out.println("2 - Open a Savings account");
-		System.out.println("3 - List Account");
-		System.out.println("4 - Account Statement");
-		System.out.println("5 - Deposit funds");
-		System.out.println("6 - Withdraw funds");
-		System.out.println("7 - Close an account");
-		System.out.println("8 - Save Transactions");
-		System.out.println("9 - Exit");
+	public static void menu() throws IOException, FileNotFoundException {
+
+		System.out.println("1 -  Open a Checking account");
+		System.out.println("2 -  Open a Savings account");
+		System.out.println("3 -  List Account");
+		System.out.println("4 -  Account Statement");
+		System.out.println("5 -  Show Account Information");
+		System.out.println("6 -  Deposit funds");
+		System.out.println("7 -  Withdraw funds");
+		System.out.println("8 -  Close an account");
+		System.out.println("9 -  Save Transactions");
+		System.out.println("10 - Currency Conversion");
+		System.out.println("11 - Exit");
 		System.out.println("\nPlease enter your choice: ");
 	}
-	public static void main(String[] args) throws AccountClosedException, IOException {
+	public static void main(String[] args) throws AccountClosedException, IOException, FileNotFoundException{
 		int customersChoice;
-		boolean validChoice = false;
 
 		menu();
 		customersChoice = scnr.nextInt();
-		while(customersChoice != 9) {
-			if(customersChoice < 1 || customersChoice > 9) {
+		bank.savingForeignExchange();
+		while(customersChoice != 12) {
+			if(customersChoice < 1 || customersChoice > 11) {
 				System.out.println("Thats not a valid option! Please try again.");
 		        menu();
 		        customersChoice = scnr.nextInt();
@@ -51,26 +54,41 @@ public class UIforBank {
 			        menu();
 			        customersChoice = scnr.nextInt();
 			        break;
-			    case 5: 
+			    case 5:
+			    	bank.accountInformation();
+			        menu();
+			        customersChoice = scnr.nextInt();
+			    	break;
+			    case 6: 
 			        bank.depositFunds();
 			        menu();
 			        customersChoice = scnr.nextInt();
 			        break;
-			    case 6:
+			    case 7:
 			        bank.withdrawFunds();
 			        menu();
 			        customersChoice = scnr.nextInt();
 			        break;
-			    case 7:
+			    case 8:
 			        bank.closeAnAccount();
 			        menu();
 			        customersChoice = scnr.nextInt();
 			        break;
-			    case 8:
+			    case 9:
 			    	bank.saveTransactions();
 			        menu();
 			        customersChoice = scnr.nextInt();
 			    	break;
+			    case 10:
+			    	bank.currencyConversion();
+			        menu();
+			        customersChoice = scnr.nextInt();
+			    	break;
+			    case 11:
+			    	bank myBank = new bank();
+			    	myBank.saveData();
+			        System.exit(0);
+			        break;
 			    }
 			} catch (AccountClosedException ACE) {
 			    System.out.println("The transaction failed because the account is closed. The balance of the account is: $" + ACE.getBalance());
@@ -84,7 +102,13 @@ public class UIforBank {
 			    System.out.println("No such account exists!!");
 				menu();
 			    customersChoice = scnr.nextInt();
+			}catch (FileNotFoundException FNFE) {
+			    System.out.println("** Currency file could not be loaded, Currency Conversion Service and Foreign Currency accounts are not available **");
+			}catch(USDNotFound USDHNF) {
+				System.out.println("One of the entered currencies must be USD!!!");
 			}
+
+			
 		}
 	}
 }

@@ -1,8 +1,8 @@
 //Hector Arroyo harroyoruiz1@toromail.csudh.edu
 
 public class savingsAccount extends Accounts{
-	public savingsAccount(Person customer) {
-		super("Savings",  customer);
+	public savingsAccount(Person customer, String currency) {
+		super("Savings",  customer, currency);
 	}
 	public int getAccountNumber() {
 	    return accountNumber;

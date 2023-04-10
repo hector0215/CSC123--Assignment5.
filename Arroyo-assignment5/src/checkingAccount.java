@@ -3,8 +3,8 @@
 public class checkingAccount extends Accounts{
 	protected double overDraftLimit;
 	
-	public checkingAccount(Person customer, double overDraft) {
-		super("Checking",  customer);
+	public checkingAccount(Person customer, double overDraft, String currency) {
+		super("Checking",  customer, currency);
 		this.overDraftLimit = overDraft;
 	}
 	public int getAccountNumber() {

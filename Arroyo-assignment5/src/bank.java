@@ -1,4 +1,5 @@
 import java.util.*;
+
 import java.util.Scanner;
 
 import javax.naming.InsufficientResourcesException;
@@ -8,17 +9,19 @@ import java.io.*;
 public class bank {
 	private static Scanner scnr = new Scanner(System.in);
 	public bank() {}
-	//private static ArrayList<Accounts> account = new ArrayList<Accounts>();
 	private static HashMap<Integer, Accounts> account = new HashMap<>();
 	private static ArrayList<Transactions> transaction = new ArrayList<Transactions>();
+	protected static HashMap<String, Double> currencyConversion = new HashMap<>();
 	private String firstName;
 	private String lastName;
 	private String SSN;
 	private static int customersChoice;
 	private boolean validChoice = false;
+	private static File ogForeignCurrency = new File("E:\\CSC123-Assignment5\\Arroyo-assignment5\\exchange-rate.csv");
 	
 	
 	public static Accounts openCheckingAccount() {
+		String accountCurrency;
 		System.out.println("Enter first name: ");
 		String firstName = scnr.next();
 		System.out.println("Enter last name: ");
@@ -27,23 +30,36 @@ public class bank {
 		String SSN = scnr.next();
 		System.out.println("Enter overdraft limit: ");
 		double odl = scnr.nextDouble();
+		if(ogForeignCurrency.exists()) {
+			System.out.println("Enter Account Currency: ");
+			accountCurrency = scnr.next();
+		}else{
+			accountCurrency = "USD";
+		}
 		
 		Person customer = new Person(firstName, lastName, SSN);
-		checkingAccount newAccount = new checkingAccount(customer, odl);
+		checkingAccount newAccount = new checkingAccount(customer, odl, accountCurrency);
 		account.putIfAbsent(newAccount.getAccountNumber(),newAccount);
 		System.out.println("Thank you, the account number is: " + newAccount.getAccountNumber());
 		return newAccount;
 	}
 	public static Accounts openSavingsAccount() {
+		String accountCurrency;
 		System.out.println("Enter first name: ");
 		String firstName = scnr.next();
 		System.out.println("Enter last name: ");
 		String lastName = scnr.next();
 		System.out.println("Enter SSN: ");
 		String SSN = scnr.next();
+		if(ogForeignCurrency.exists()) {
+			System.out.println("Enter Account Currency: ");
+			accountCurrency = scnr.next();
+		}else{
+			accountCurrency = "USD";
+		}
 		
 		Person customer = new Person(firstName, lastName, SSN);
-		savingsAccount newAccount = new savingsAccount(customer);
+		savingsAccount newAccount = new savingsAccount(customer, accountCurrency);
 		account.putIfAbsent(newAccount.getAccountNumber(),newAccount);
 		System.out.println("Thank you, the account number is: " + newAccount.getAccountNumber());
 		return newAccount;
@@ -98,13 +114,13 @@ public class bank {
 		    if(account.containsKey(customersAccountNumber)) {
 		        Accounts acc = account.get(customersAccountNumber);
 		        if(acc.isOpen() == false){
-		            throw new AccountClosedException("Deposit failed because the account is closed, the balance is: $" , acc.getBalance());
+		            throw new AccountClosedException("Deposit failed because the account is closed, the balance is: $" , acc.getUserCurrencyBalance());
 		        } else {
 		            System.out.println("Enter the amount to deposit: ");
 		            double depositAmount = scnr.nextDouble();
 		            newBalance = acc.deposit(depositAmount);
-		            acc.balance = newBalance;
-		            System.out.println("Deposit successful, the new balance is: $" + acc.getBalance());
+		            acc.usersSelectedCurrency = newBalance;
+		            System.out.println("Deposit successful, the new balance is: $" + acc.getUserCurrencyBalance());
 		            Transactions creditTransaction = new Transactions(acc.accountNumber, "credit",depositAmount);
 		            transaction.add(creditTransaction);
 		            accountFound = true;
@@ -130,18 +146,18 @@ public class bank {
 		    if(account.containsKey(chosenCustomersAccountNumber)) {
 		        Accounts acc = account.get(chosenCustomersAccountNumber);
 		        if(acc.isOpen() == false){
-		            throw new AccountClosedException("Withdrawal failed because the account is closed, the balance is: $", acc.getBalance());
+		            throw new AccountClosedException("Withdrawal failed because the account is closed, the balance is: $", acc.getUSDBalance());
 		        } else {
 		            System.out.println("Enter the amount to withdraw: ");
 		            double withdrawAmount = scnr.nextDouble();
 		            newBalances2 = acc.withdraw(withdrawAmount);
 		            acc.balance = newBalances2;
 		            if(acc.withdrawSucces() == true) {
-		                System.out.println("Withdrawal successful, the new balance is: $" + acc.getBalance());
+		                System.out.println("Withdrawal successful, the new balance is: $" + acc.getUSDBalance());
 		                Transactions debitTransaction = new Transactions(acc.accountNumber, "debit", withdrawAmount);
 		                transaction.add(debitTransaction);
 		            } else {
-		                throw new InsufficientBalanceException("Withdrawal failed due to insufficient funds, the balance is: $", acc.getBalance());
+		                throw new InsufficientBalanceException("Withdrawal failed due to insufficient funds, the balance is: $", acc.getUSDBalance());
 		            }
 		            accountFound2 = true;
 		        }
@@ -162,7 +178,7 @@ public class bank {
         	if(account.containsKey(customersAccountNumber2)) {
         		Accounts acc = account.get(customersAccountNumber2);
         		accountFound3 = true;
-        		accountBalance = acc.getBalance();
+        		accountBalance = acc.getUSDBalance();
         		acc.closeAccount();
         	}
     	}
@@ -172,7 +188,6 @@ public class bank {
     		System.out.println("Account closed, current balance is $" + accountBalance + ", deposits are no longer possible.");
     	}
 	}
-
 	public static void saveTransactions() throws IOException, NoSuchAccountException {
 		File file = new File("transactions.txt");
 		FileWriter fw = new FileWriter(file);
@@ -201,7 +216,84 @@ public class bank {
 	    System.out.println();
 	    pw.close();
 	}
+	public static void savingForeignExchange() throws java.io.FileNotFoundException, FileNotFoundException {
+
+	    if (!ogForeignCurrency.exists()) {
+	        System.out.println("Cant find");
+	    } else {
+	        Scanner scnr = new Scanner(ogForeignCurrency);
+
+			while (scnr.hasNextLine()) {
+			    String line = scnr.nextLine();
+			    String[] parts = line.split(",");
+			    String currency = parts[0];
+			    Double rate = Double.parseDouble(parts[2]);
+			    currencyConversion.put(currency, rate);
+			}
+	    }
+	}
+	public static void currencyConversion()throws USDNotFound, IOException, FileNotFoundException {
+		String usersChosenCurrency;
+		double amountUserIsSelling;
+		String currencyUserIsBuying;
 		
+
+		System.out.println("The currency you are selling: ");
+		usersChosenCurrency = scnr.nextLine();
+		double conversionRateOfChosenCurrency = currencyConversion.get(usersChosenCurrency);
 		
+		System.out.println("The amount you are selling : ");
+		amountUserIsSelling = scnr.nextDouble();
+		
+		System.out.println("The currency you are buying : ");
+		scnr.nextLine();
+		currencyUserIsBuying = scnr.nextLine();
+		
+		if(!usersChosenCurrency.equals("USD") && !currencyUserIsBuying.equals("USD")) {
+			throw new USDNotFound("One of the entered currencies must be USD!!!");
+		}
+		if(usersChosenCurrency.equals("USD")) {
+			double amountAfterConversion = amountUserIsSelling/conversionRateOfChosenCurrency;
+			System.out.printf("The exchange rate is %f and you will get %s $%.2f \n",conversionRateOfChosenCurrency,currencyUserIsBuying,amountAfterConversion);
+		}
+		if(currencyUserIsBuying.equals("USD")) {
+			double amountAfterConversion = amountUserIsSelling * conversionRateOfChosenCurrency;
+			System.out.printf("The exchange rate is %f and you will get %s $%.2f \n",conversionRateOfChosenCurrency,currencyUserIsBuying,amountAfterConversion);
+		}
+	}
+	public static void accountInformation() {
+		System.out.println("Enter account number: ");
+		int customersAccountNumber = scnr.nextInt();
+		
+		if(account.isEmpty()) {
+		    System.out.println("No accounts have been created.");
+		    System.out.println();
+		    customersChoice = scnr.nextInt();
+		} else {
+		    if(account.containsKey(customersAccountNumber)) {
+		        Accounts acc = account.get(customersAccountNumber);
+		        System.out.println("Account Number: " + customersAccountNumber);
+		        System.out.println("Name: " + acc.customer.getFirstName() + " " + acc.customer.getLastName());
+		        System.out.println("SSN: " + acc.customer.getSSN());
+		        System.out.println("Currency: " + acc.currency);
+		        System.out.println("Currency Balance: " + acc.getUserCurrencyBalance());
+		        System.out.println("USD Balance: " + acc.getUSDBalance());
+		        System.out.println();
+		    }
+		}
+	}
+    public void saveData() {
+        try {
+            FileOutputStream fileOut = new FileOutputStream("bank_data.ser");
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(this); // write the entire Bank object to the file
+            out.close();
+            fileOut.close();
+            System.out.println("Bank data saved to bank_data.ser");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
 
