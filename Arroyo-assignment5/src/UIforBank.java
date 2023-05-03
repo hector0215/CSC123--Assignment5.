@@ -1,5 +1,6 @@
 //Hector Arroyo harroyoruiz1@toromail.csudh.edu
 import java.io.IOException;
+import java.util.Map;
 import java.util.Scanner;
 
 public class UIforBank {
@@ -20,12 +21,12 @@ public class UIforBank {
 		System.out.println("11 - Exit");
 		System.out.println("\nPlease enter your choice: ");
 	}
-	public static void main(String[] args) throws AccountClosedException, IOException, FileNotFoundException{
+	public static void main(String[] args) throws AccountClosedException, IOException, FileNotFoundException, InterruptedException{
 		int customersChoice;
 
 		menu();
 		customersChoice = scnr.nextInt();
-		bank.savingForeignExchange();
+		//bank.savingForeignExchange();
 		while(customersChoice != 12) {
 			if(customersChoice < 1 || customersChoice > 11) {
 				System.out.println("Thats not a valid option! Please try again.");

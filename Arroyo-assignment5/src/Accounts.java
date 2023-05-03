@@ -73,7 +73,7 @@ public abstract class Accounts {
 	}
 	
 	public double getUSDBalance() {
-		return balance * bank.currencyConversion.get(currency);
+		return balance * bank.exchangeRates.get(currency);
 	}
 	
 	public double getUserCurrencyBalance() {

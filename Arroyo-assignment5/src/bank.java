@@ -1,27 +1,69 @@
 import java.util.*;
-
-import java.util.Scanner;
-
-import javax.naming.InsufficientResourcesException;
-
 import java.io.*;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 public class bank {
 	private static Scanner scnr = new Scanner(System.in);
 	public bank() {}
 	private static HashMap<Integer, Accounts> account = new HashMap<>();
 	private static ArrayList<Transactions> transaction = new ArrayList<Transactions>();
-	protected static HashMap<String, Double> currencyConversion = new HashMap<>();
+	public static HashMap<String, Double> exchangeRates = new HashMap<>();
 	private String firstName;
 	private String lastName;
 	private String SSN;
 	private static int customersChoice;
 	private boolean validChoice = false;
-	private static File ogForeignCurrency = new File("E:\\CSC123-Assignment5\\Arroyo-assignment5\\exchange-rate.csv");
 	
-	
+	public static void currencyConversion()throws USDNotFound, IOException, FileNotFoundException, InterruptedException {
+		String usersChosenCurrency;
+		double amountUserIsSelling;
+		String currencyUserIsBuying;
+		
+		HttpClient httpClient = HttpClient.newHttpClient();
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create("http://www.usman.cloud/banking/exchange-rate.csv"))
+                .GET()
+                .build();
+        HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+        Scanner scanner = new Scanner(httpResponse.body());
+        scanner.nextLine();
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            String[] parts = line.split(",");
+            String currency = parts[0];
+            Double rate = Double.parseDouble(parts[2]);
+            exchangeRates.put(currency, rate);
+            
+        }
+		
+		System.out.println("The currency you are selling: ");
+		usersChosenCurrency = scnr.nextLine();
+		double conversionRateOfChosenCurrency = exchangeRates.get(usersChosenCurrency);
+		
+		System.out.println("The amount you are selling : ");
+		amountUserIsSelling = scnr.nextDouble();
+		
+		System.out.println("The currency you are buying : ");
+		scnr.nextLine();
+		currencyUserIsBuying = scnr.nextLine();
+		
+		if(!usersChosenCurrency.equals("USD") && !currencyUserIsBuying.equals("USD")) {
+			throw new USDNotFound("One of the entered currencies must be USD!!!");
+		}
+		if(usersChosenCurrency.equals("USD")) {
+			double amountAfterConversion = amountUserIsSelling/conversionRateOfChosenCurrency;
+			System.out.printf("The exchange rate is %f and you will get %s $%.2f \n",conversionRateOfChosenCurrency,currencyUserIsBuying,amountAfterConversion);
+		}
+		if(currencyUserIsBuying.equals("USD")) {
+			double amountAfterConversion = amountUserIsSelling * conversionRateOfChosenCurrency;
+			System.out.printf("The exchange rate is %f and you will get %s $%.2f \n",conversionRateOfChosenCurrency,currencyUserIsBuying,amountAfterConversion);
+		}
+	}
 	public static Accounts openCheckingAccount() {
-		String accountCurrency;
 		System.out.println("Enter first name: ");
 		String firstName = scnr.next();
 		System.out.println("Enter last name: ");
@@ -30,12 +72,9 @@ public class bank {
 		String SSN = scnr.next();
 		System.out.println("Enter overdraft limit: ");
 		double odl = scnr.nextDouble();
-		if(ogForeignCurrency.exists()) {
-			System.out.println("Enter Account Currency: ");
-			accountCurrency = scnr.next();
-		}else{
-			accountCurrency = "USD";
-		}
+		System.out.println("Enter Account Currency: ");
+		String accountCurrency = scnr.next();
+		System.out.println(exchangeRates.get(accountCurrency));
 		
 		Person customer = new Person(firstName, lastName, SSN);
 		checkingAccount newAccount = new checkingAccount(customer, odl, accountCurrency);
@@ -51,12 +90,8 @@ public class bank {
 		String lastName = scnr.next();
 		System.out.println("Enter SSN: ");
 		String SSN = scnr.next();
-		if(ogForeignCurrency.exists()) {
-			System.out.println("Enter Account Currency: ");
-			accountCurrency = scnr.next();
-		}else{
-			accountCurrency = "USD";
-		}
+		System.out.println("Enter Account Currency: ");
+		accountCurrency = scnr.next();
 		
 		Person customer = new Person(firstName, lastName, SSN);
 		savingsAccount newAccount = new savingsAccount(customer, accountCurrency);
@@ -215,52 +250,8 @@ public class bank {
 	    }
 	    System.out.println();
 	    pw.close();
-	}
-	public static void savingForeignExchange() throws java.io.FileNotFoundException, FileNotFoundException {
-
-	    if (!ogForeignCurrency.exists()) {
-	        System.out.println("Cant find");
-	    } else {
-	        Scanner scnr = new Scanner(ogForeignCurrency);
-
-			while (scnr.hasNextLine()) {
-			    String line = scnr.nextLine();
-			    String[] parts = line.split(",");
-			    String currency = parts[0];
-			    Double rate = Double.parseDouble(parts[2]);
-			    currencyConversion.put(currency, rate);
-			}
-	    }
-	}
-	public static void currencyConversion()throws USDNotFound, IOException, FileNotFoundException {
-		String usersChosenCurrency;
-		double amountUserIsSelling;
-		String currencyUserIsBuying;
-		
-
-		System.out.println("The currency you are selling: ");
-		usersChosenCurrency = scnr.nextLine();
-		double conversionRateOfChosenCurrency = currencyConversion.get(usersChosenCurrency);
-		
-		System.out.println("The amount you are selling : ");
-		amountUserIsSelling = scnr.nextDouble();
-		
-		System.out.println("The currency you are buying : ");
-		scnr.nextLine();
-		currencyUserIsBuying = scnr.nextLine();
-		
-		if(!usersChosenCurrency.equals("USD") && !currencyUserIsBuying.equals("USD")) {
-			throw new USDNotFound("One of the entered currencies must be USD!!!");
-		}
-		if(usersChosenCurrency.equals("USD")) {
-			double amountAfterConversion = amountUserIsSelling/conversionRateOfChosenCurrency;
-			System.out.printf("The exchange rate is %f and you will get %s $%.2f \n",conversionRateOfChosenCurrency,currencyUserIsBuying,amountAfterConversion);
-		}
-		if(currencyUserIsBuying.equals("USD")) {
-			double amountAfterConversion = amountUserIsSelling * conversionRateOfChosenCurrency;
-			System.out.printf("The exchange rate is %f and you will get %s $%.2f \n",conversionRateOfChosenCurrency,currencyUserIsBuying,amountAfterConversion);
-		}
-	}
+	}	
+	
 	public static void accountInformation() {
 		System.out.println("Enter account number: ");
 		int customersAccountNumber = scnr.nextInt();
@@ -286,7 +277,7 @@ public class bank {
         try {
             FileOutputStream fileOut = new FileOutputStream("bank_data.ser");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(this); // write the entire Bank object to the file
+            out.writeObject(this);
             out.close();
             fileOut.close();
             System.out.println("Bank data saved to bank_data.ser");
@@ -295,5 +286,9 @@ public class bank {
         }
     }
 
+    
+    
+    
+    
 }
 
