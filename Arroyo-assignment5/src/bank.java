@@ -74,7 +74,6 @@ public class bank {
 		double odl = scnr.nextDouble();
 		System.out.println("Enter Account Currency: ");
 		String accountCurrency = scnr.next();
-		System.out.println(exchangeRates.get(accountCurrency));
 		
 		Person customer = new Person(firstName, lastName, SSN);
 		checkingAccount newAccount = new checkingAccount(customer, odl, accountCurrency);
