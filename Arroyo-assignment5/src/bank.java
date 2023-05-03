@@ -17,11 +17,7 @@ public class bank {
 	private static int customersChoice;
 	private boolean validChoice = false;
 	
-	public static void currencyConversion()throws USDNotFound, IOException, FileNotFoundException, InterruptedException {
-		String usersChosenCurrency;
-		double amountUserIsSelling;
-		String currencyUserIsBuying;
-		
+	public static void rates() throws IOException, InterruptedException {
 		HttpClient httpClient = HttpClient.newHttpClient();
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create("http://www.usman.cloud/banking/exchange-rate.csv"))
@@ -39,6 +35,13 @@ public class bank {
             exchangeRates.put(currency, rate);
             
         }
+	}
+	
+	public static void currencyConversion()throws USDNotFound, IOException, FileNotFoundException, InterruptedException {
+		String usersChosenCurrency;
+		double amountUserIsSelling;
+		String currencyUserIsBuying;
+		rates();
 		
 		System.out.println("The currency you are selling: ");
 		usersChosenCurrency = scnr.nextLine();
@@ -74,7 +77,6 @@ public class bank {
 		double odl = scnr.nextDouble();
 		System.out.println("Enter Account Currency: ");
 		String accountCurrency = scnr.next();
-		System.out.println(exchangeRates.get(accountCurrency));
 		
 		Person customer = new Person(firstName, lastName, SSN);
 		checkingAccount newAccount = new checkingAccount(customer, odl, accountCurrency);
@@ -99,7 +101,8 @@ public class bank {
 		System.out.println("Thank you, the account number is: " + newAccount.getAccountNumber());
 		return newAccount;
 	}
-	public static void listAccounts() {
+	public static void listAccounts() throws IOException, InterruptedException {
+		rates();
 	    if (account.isEmpty()) {
 	        System.out.println("No accounts found.");
 	    } else {
@@ -110,7 +113,8 @@ public class bank {
 	    }
 	    System.out.println();
 	}
-	public static void accountStatement() throws NoSuchAccountException {
+	public static void accountStatement() throws NoSuchAccountException, IOException, InterruptedException {
+		rates();
 	    boolean accountFound4 = false;
 	    System.out.println("Enter account number: ");
 	    int customersAccountNumber3 = scnr.nextInt();
@@ -135,7 +139,8 @@ public class bank {
 	    }
 	    System.out.println();
 	}
-	public static void depositFunds() throws AccountClosedException, NoSuchAccountException {
+	public static void depositFunds() throws AccountClosedException, NoSuchAccountException, IOException, InterruptedException {
+		rates();
 		boolean accountFound = false;
 		double newBalance;
 		System.out.println("Enter account number: ");
@@ -167,7 +172,8 @@ public class bank {
 		    throw new NoSuchAccountException();
 		}
 	}
-	public static void withdrawFunds() throws AccountClosedException, InsufficientBalanceException, NoSuchAccountException {
+	public static void withdrawFunds() throws AccountClosedException, InsufficientBalanceException, NoSuchAccountException, IOException, InterruptedException {
+		rates();
 		boolean accountFound2 = false;
 		double newBalances2;
 		System.out.println("Enter account number: ");
@@ -203,7 +209,8 @@ public class bank {
 		    throw new NoSuchAccountException();
 		}
 	}
-	public static void closeAnAccount() throws NoSuchAccountException {
+	public static void closeAnAccount() throws NoSuchAccountException, IOException, InterruptedException {
+		rates();
 		boolean accountFound3 = false;
 		double accountBalance = 0;
 		System.out.println("Enter account number: ");
@@ -252,7 +259,8 @@ public class bank {
 	    pw.close();
 	}	
 	
-	public static void accountInformation() {
+	public static void accountInformation() throws IOException, InterruptedException {
+		rates();
 		System.out.println("Enter account number: ");
 		int customersAccountNumber = scnr.nextInt();
 		
