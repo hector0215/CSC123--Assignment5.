@@ -4,6 +4,9 @@ public class savingsAccount extends Accounts{
 	public savingsAccount(Person customer, String currency) {
 		super("Savings",  customer, currency);
 	}
+	public savingsAccount(Person customer) {
+		super("Savings",  customer);
+	}
 	public int getAccountNumber() {
 	    return accountNumber;
 	}

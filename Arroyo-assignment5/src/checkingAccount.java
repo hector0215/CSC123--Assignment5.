@@ -7,6 +7,10 @@ public class checkingAccount extends Accounts{
 		super("Checking",  customer, currency);
 		this.overDraftLimit = overDraft;
 	}
+	public checkingAccount(Person customer, double overDraft) {
+		super("Checking",  customer);
+		this.overDraftLimit = overDraft;
+	}
 	public int getAccountNumber() {
 	    return accountNumber;
 	}

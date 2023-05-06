@@ -22,15 +22,11 @@ public class UIforBank {
 		System.out.println("\nPlease enter your choice: ");
 	}
 	public static void main(String[] args) throws AccountClosedException, IOException, FileNotFoundException, InterruptedException{
+		bank.config();
 		int customersChoice;
-		
-		
-
 		menu();
 		customersChoice = scnr.nextInt();
-		//bank.savingForeignExchange();
 		while(customersChoice != 12) {
-			bank.rates();
 			if(customersChoice < 1 || customersChoice > 11) {
 				System.out.println("Thats not a valid option! Please try again.");
 		        menu();

@@ -1,5 +1,6 @@
 //Hector Arroyo harroyoruiz1@toromail.csudh.edu
 
+import java.io.IOException;
 import java.util.*;
 
 public abstract class Accounts {
@@ -16,6 +17,7 @@ public abstract class Accounts {
 	protected String status;
 	protected String currency;
 	protected double usersSelectedCurrency;
+	private boolean currenciesOnOrOff = true;
     private ArrayList<Transactions> transactions;
     
 
@@ -26,6 +28,14 @@ public abstract class Accounts {
 		accountOpen=true;
 		this.customer = customer;
 		this.currency = currency;
+	    this.transactions = new ArrayList<Transactions>();
+	}
+	public Accounts(String accountType, Person customer) {
+		unissuedAccountNumbers++;
+		accountNumber = unissuedAccountNumbers;
+		this.accountType = accountType;
+		accountOpen=true;
+		this.customer = customer;
 	    this.transactions = new ArrayList<Transactions>();
 	}
 	
@@ -76,6 +86,10 @@ public abstract class Accounts {
 		return balance * bank.exchangeRates.get(currency);
 	}
 	
+	public double getBalance() {
+		return balance;
+	}
+	
 	public double getUserCurrencyBalance() {
 		usersSelectedCurrency = balance; 
 		return usersSelectedCurrency;
@@ -85,9 +99,26 @@ public abstract class Accounts {
 		return transactions;
 	}
 	
+	public boolean supportCurrencies() throws IOException, InterruptedException {
+		boolean on;
+		if(bank.config() == true) {
+			on = true;
+			currenciesOnOrOff = on;
+		}else {
+			on = false;
+			currenciesOnOrOff = on;
+		}
+		return currenciesOnOrOff;
+	}
+	
 	@Override
 	public String toString() {
 		status = isOpen() ? "Account Open" : "Account Closed";
-		return accountNumber + " (" + this.accountType + ") " + ": " + customer + " : " + currency + " : " + getUserCurrencyBalance() + " : " + "USD" + " : $" + getUSDBalance() + " : " + status;
+		if(currenciesOnOrOff) {
+			return accountNumber + " (" + this.accountType + ") " + ": " + customer + " : " + currency + " : $" + getUserCurrencyBalance() + " : " + "USD" + " : $" + getUSDBalance() + " : " + status;
+		}else {
+			return accountNumber + " (" + this.accountType + ") " + ": " + customer + " : " + "USD" + " : $" + getBalance() + " : " + status;
+		}
+		
 	}
 }
