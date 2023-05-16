@@ -21,7 +21,7 @@ public class UIforBank {
 		System.out.println("11 - Exit");
 		System.out.println("\nPlease enter your choice: ");
 	}
-	public static void main(String[] args) throws AccountClosedException, IOException, FileNotFoundException, InterruptedException{
+	public static void main(String[] args) throws Exception{
 		bank.config();
 		int customersChoice;
 		menu();

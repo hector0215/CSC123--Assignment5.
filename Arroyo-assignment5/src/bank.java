@@ -19,62 +19,54 @@ public class bank {
 	private static File file = new File("C:\\Users\\Hector\\git\\CSC123\\Arroyo-assignment5\\src\\config.txt");
 
 	public static boolean config() throws IOException, InterruptedException {
-		boolean supportCurrencies;
-		
-		HashMap<String, String> config = readConfigFile(file);
-		
-		// if else statements to figure out config settings
-		if("true".equals(config.get("support.currencies"))) {
-			
-			// if else settings to see if the source is going to be file or webservice
-			if("file".equals(config.get("currencies.source"))) {
-					 BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Hector\\Downloads\\exchange-rate.csv"));
-			     	 String line;
-			            while ((line = br.readLine()) != null) {
-			                String[] parts = line.split(",");
-			                String key = parts[0];
-			                Double value = Double.parseDouble(parts[2]);
-			                exchangeRates.put(key, value);
-			            }
-				}
-			
-			else if("webservice".equals(config.get("currencies.source"))) {
-				HttpClient httpClient = HttpClient.newHttpClient();
-		        HttpRequest httpRequest = HttpRequest.newBuilder()
-		                .uri(URI.create("http://www.usman.cloud/banking/exchange-rate.csv"))
-		                .GET()
-		                .build();
-		        HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-		        Scanner scanner = new Scanner(httpResponse.body());
-		        scanner.nextLine();
-		        while (scanner.hasNextLine()) {
-		            String line = scanner.nextLine();
-		            String[] parts = line.split(",");
-		            String currency = parts[0];
-		            Double rate = Double.parseDouble(parts[2]);
-		            exchangeRates.put(currency, rate);
-		            
-		        }
-			}
-			else{
-				
-			}
-			supportCurrencies = true;
-			return supportCurrencies;
-		}
-		
-		// if support.currencies is set to false
-		else {
-			supportCurrencies = false;
-			return supportCurrencies;
-		}
-		
-		
-	}
-	private static Double parseDouble(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		boolean supportCurrencies;
+	    HashMap<String, String> configs = readConfigFile(file);
+
+	    // Check if support.currencies is set to true
+	    if ("true".equals(configs.get("support.currencies"))) {
+
+	        // Check the source for currency data
+	        if ("file".equals(configs.get("currencies.source"))) {
+	            BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Hector\\Downloads\\exchange-rate.csv"));
+	            String line;
+	            while ((line = br.readLine()) != null) {
+	                String[] parts = line.split(",");
+	                String key = parts[0];
+	                Double value = Double.parseDouble(parts[2]);
+	                exchangeRates.put(key, value);
+	            }
+	            br.close();
+	        } else if ("webservice".equals(configs.get("currencies.source"))) {
+	            HttpClient httpClient = HttpClient.newHttpClient();
+	            HttpRequest httpRequest = HttpRequest.newBuilder()
+	                    .uri(URI.create(configs.get("webservice.url")))
+	                    .GET()
+	                    .build();
+	            HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+	            Scanner scanner = new Scanner(httpResponse.body());
+	            scanner.nextLine();
+	            while (scanner.hasNextLine()) {
+	                String line = scanner.nextLine();
+	                String[] parts = line.split(",");
+	                String currency = parts[0];
+	                Double rate = Double.parseDouble(parts[2]);
+	                exchangeRates.put(currency, rate);
+	            }
+	            scanner.close();
+	        }
+	        else {
+	        	
+	        }
+
+	        supportCurrencies = true;
+	        return supportCurrencies;
+	    } else {
+	    	supportCurrencies = false;
+	    	return supportCurrencies;
+	    }
+
 	}
 	public static HashMap<String, String> readConfigFile(File file2) throws java.io.FileNotFoundException, IOException {
 		HashMap<String, String> config = new HashMap<>();
@@ -89,27 +81,6 @@ public class bank {
         }
         return config;
     }
-	
-	
-	/*public static void rates() throws IOException, InterruptedException {
-		HttpClient httpClient = HttpClient.newHttpClient();
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://www.usman.cloud/banking/exchange-rate.csv"))
-                .GET()
-                .build();
-        HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
-        Scanner scanner = new Scanner(httpResponse.body());
-        scanner.nextLine();
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            String[] parts = line.split(",");
-            String currency = parts[0];
-            Double rate = Double.parseDouble(parts[2]);
-            exchangeRates.put(currency, rate);
-            
-        }
-	}	*/
 	public static Accounts openCheckingAccount() throws IOException, InterruptedException {
 		System.out.println("Enter first name: ");
 		String firstName = scnr.next();

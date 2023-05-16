@@ -17,9 +17,8 @@ public abstract class Accounts {
 	protected String status;
 	protected String currency;
 	protected double usersSelectedCurrency;
-	private boolean currenciesOnOrOff = true;
+	protected boolean currenciesOnOrOff = true;
     private ArrayList<Transactions> transactions;
-    
 
 	public Accounts(String accountType, Person customer, String currency) {
 		unissuedAccountNumbers++;
@@ -113,12 +112,12 @@ public abstract class Accounts {
 	
 	@Override
 	public String toString() {
-		status = isOpen() ? "Account Open" : "Account Closed";
-		if(currenciesOnOrOff) {
-			return accountNumber + " (" + this.accountType + ") " + ": " + customer + " : " + currency + " : $" + getUserCurrencyBalance() + " : " + "USD" + " : $" + getUSDBalance() + " : " + status;
-		}else {
-			return accountNumber + " (" + this.accountType + ") " + ": " + customer + " : " + "USD" + " : $" + getBalance() + " : " + status;
-		}
-		
+	    status = isOpen() ? "Account Open" : "Account Closed";
+	    if (currenciesOnOrOff && bank.exchangeRates.containsKey(currency)) {
+	        return accountNumber + " (" + this.accountType + ") " + ": " + customer + " : " + currency + " : $" + getUserCurrencyBalance() + " : " + "USD" + " : $" + getUSDBalance() + " : " + status;
+	    } else {
+	        return accountNumber + " (" + this.accountType + ") " + ": " + customer + " : " + "USD" + " : $" + getBalance() + " : " + status;
+	    }
 	}
+
 }
